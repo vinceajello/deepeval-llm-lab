@@ -43,7 +43,7 @@ class MMLU(DeepEvalBaseBenchmark):
             self.confinement_instructions = confinement_instructions
 
     def evaluate(
-        self, model: DeepEvalBaseLLM, batch_size: Optional[int] = None
+        self, model: DeepEvalBaseLLM, batch_size: Optional[int] = None, callback_progress = None
     ) -> Dict:
         with capture_benchmark_run("MMLU", len(self.tasks)):
             overall_correct_predictions = 0
@@ -69,6 +69,10 @@ class MMLU(DeepEvalBaseBenchmark):
                         range(0, len(goldens), batch_size),
                         desc=f"Batch Processing {task.value} (batch_size={batch_size})",
                     ):
+                        
+                        if callback_progress:
+                            callback_progress(i)
+
                         goldens_batch = goldens[i : i + batch_size]
                         batch_predictions = self.batch_predict(
                             model, task, goldens_batch
